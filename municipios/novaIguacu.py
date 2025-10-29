@@ -38,7 +38,7 @@ from procedimentos import (
     carregar_todos_procedimentos
 )
 
-def analisar_procedimentos_nilopolis():
+def analisar_procedimentos_nova_iguacu():
     arquivo = "relatório_modificado.xlsx"
     
     try:
@@ -81,10 +81,10 @@ def analisar_procedimentos_nilopolis():
         todos_procedimentos = carregar_todos_procedimentos()
         
         tabela = pd.read_excel(arquivo)
-        
-        coluna_procedimento = 'Nilopolis'
-        coluna_quantidade = 'Quantidade Nilopolis'
-        
+
+        coluna_procedimento = 'Nova Iguaçu'
+        coluna_quantidade = 'Quantidade Nova Iguaçu'
+
         if coluna_procedimento not in tabela.columns:
             print(f"Coluna '{coluna_procedimento}' não encontrada!")
             return
@@ -146,15 +146,17 @@ def analisar_procedimentos_nilopolis():
         totais = {}
         for nome, lista in grupos.items():
             totais[nome] = process_group(lista or [])
-        
+
         print("=== RESULTADOS {} ===".format(coluna_procedimento))
         for nome, total in totais.items():
             print(f"{nome.replace('_', ' ').title()} Total: {total}")
         soma_total = sum(totais.values())
         print(f"Soma Total: {soma_total}")
+        
         print("\n")
         print("\n")
         print("\n")
+
         # print("\n" + "="*80)
         # print("PROCEDIMENTOS NA COLUNA QUE NÃO ESTÃO NAS LISTAS:")
         # print("="*80)
@@ -163,7 +165,6 @@ def analisar_procedimentos_nilopolis():
         # for lista in grupos.values():
         #     todos_procedimentos_conhecidos.extend(lista or [])
         
-        # # Remover duplicatas e valores vazios
         # todos_procedimentos_conhecidos = list(set([p for p in todos_procedimentos_conhecidos if p and str(p).strip()]))
         
         # procedimentos_na_coluna = tabela[coluna_procedimento].dropna().unique()
@@ -179,7 +180,6 @@ def analisar_procedimentos_nilopolis():
         #         if not pd.isna(quantidade) and quantidade > 0:
         #             procedimentos_nao_mapeados.append((procedimento, quantidade))
         
-        # Ordenar por quantidade (decrescente)
         # procedimentos_nao_mapeados.sort(key=lambda x: x[1], reverse=True)
         
         # if procedimentos_nao_mapeados:
@@ -204,4 +204,4 @@ def analisar_procedimentos_nilopolis():
         return {}, []
 
 if __name__ == "__main__":
-    analisar_procedimentos_nilopolis()
+    analisar_procedimentos_nova_iguacu()
