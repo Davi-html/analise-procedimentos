@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
 from procedimentos import (
     carregar_audiometria_tonal,
     carregar_biopsia_mama,
@@ -42,7 +43,7 @@ from procedimentos import (
     carregar_todos_procedimentos
 )
 
-def analisar_procedimentos_nova_iguacu():
+def analisar_procedimentos_japeri():
     arquivo = os.getenv("arquivo")
     
     try:
@@ -86,8 +87,8 @@ def analisar_procedimentos_nova_iguacu():
         
         tabela = pd.read_excel(arquivo)
 
-        coluna_procedimento = 'Nova Iguaçu'
-        coluna_quantidade = 'Quantidade Nova Iguaçu'
+        coluna_procedimento = 'Japeri'
+        coluna_quantidade = 'Quantidade Japeri'
 
         if coluna_procedimento not in tabela.columns:
             print(f"Coluna '{coluna_procedimento}' não encontrada!")

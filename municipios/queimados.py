@@ -42,7 +42,7 @@ from procedimentos import (
     carregar_todos_procedimentos
 )
 
-def analisar_procedimentos_nova_iguacu():
+def analisar_procedimentos_queimados():
     arquivo = os.getenv("arquivo")
     
     try:
@@ -86,8 +86,8 @@ def analisar_procedimentos_nova_iguacu():
         
         tabela = pd.read_excel(arquivo)
 
-        coluna_procedimento = 'Nova Iguaçu'
-        coluna_quantidade = 'Quantidade Nova Iguaçu'
+        coluna_procedimento = 'Queimados'
+        coluna_quantidade = 'Quantidade Queimados'
 
         if coluna_procedimento not in tabela.columns:
             print(f"Coluna '{coluna_procedimento}' não encontrada!")

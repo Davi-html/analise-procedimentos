@@ -1,4 +1,9 @@
 import pandas as pd
+from dotenv import load_dotenv
+import os 
+
+load_dotenv()
+
 from procedimentos import (
     carregar_audiometria_tonal,
     carregar_biopsia_mama,
@@ -39,7 +44,7 @@ from procedimentos import (
 )
 
 def analisar_procedimentos_nilopolis():
-    arquivo = "relatório_modificado.xlsx"
+    arquivo = os.getenv("arquivo")
     
     try:
         # carregar listas de procedimentos
@@ -81,10 +86,10 @@ def analisar_procedimentos_nilopolis():
         todos_procedimentos = carregar_todos_procedimentos()
         
         tabela = pd.read_excel(arquivo)
-        
+
         coluna_procedimento = 'Nilopolis'
         coluna_quantidade = 'Quantidade Nilopolis'
-        
+
         if coluna_procedimento not in tabela.columns:
             print(f"Coluna '{coluna_procedimento}' não encontrada!")
             return
@@ -106,8 +111,6 @@ def analisar_procedimentos_nilopolis():
             return total
         
         grupos = {
-            "ultrassonografia": ultrassonografias,
-            "doppler": doppler,
             "audiometria_tonal": audiometria_tonal,
             "biopsia_mama": biopsia_mama,
             "biopsia_prostata": biopsia_prostata,
@@ -138,6 +141,8 @@ def analisar_procedimentos_nilopolis():
             "ressonancia_magnetica": ressonancia_magnetica,
             "teste_esforco": teste_esforco,
             "tomografia": tomografia,
+            "ultrassonografia": ultrassonografias,
+            "doppler": doppler,
             "vectoeletronistagmografia": vectoeletronistagmografia,
             "videohisteroscopia": videohisteroscopia,
             "videolaringoscopia": videolaringoscopia,
@@ -146,15 +151,23 @@ def analisar_procedimentos_nilopolis():
         totais = {}
         for nome, lista in grupos.items():
             totais[nome] = process_group(lista or [])
-        
+            dados = {
+                coluna_procedimento: totais.keys(),
+                coluna_quantidade: totais.values()
+            }
+
+        df = pd.DataFrame(dados)
+        df.to_excel("./relatorio-criado-municipio/{}.xlsx".format(coluna_procedimento), index=False)
+
         print("=== RESULTADOS {} ===".format(coluna_procedimento))
         for nome, total in totais.items():
             print(f"{nome.replace('_', ' ').title()} Total: {total}")
         soma_total = sum(totais.values())
         print(f"Soma Total: {soma_total}")
+        
         print("\n")
-        print("\n")
-        print("\n")
+
+
         # print("\n" + "="*80)
         # print("PROCEDIMENTOS NA COLUNA QUE NÃO ESTÃO NAS LISTAS:")
         # print("="*80)
@@ -163,7 +176,6 @@ def analisar_procedimentos_nilopolis():
         # for lista in grupos.values():
         #     todos_procedimentos_conhecidos.extend(lista or [])
         
-        # # Remover duplicatas e valores vazios
         # todos_procedimentos_conhecidos = list(set([p for p in todos_procedimentos_conhecidos if p and str(p).strip()]))
         
         # procedimentos_na_coluna = tabela[coluna_procedimento].dropna().unique()
@@ -179,7 +191,6 @@ def analisar_procedimentos_nilopolis():
         #         if not pd.isna(quantidade) and quantidade > 0:
         #             procedimentos_nao_mapeados.append((procedimento, quantidade))
         
-        # Ordenar por quantidade (decrescente)
         # procedimentos_nao_mapeados.sort(key=lambda x: x[1], reverse=True)
         
         # if procedimentos_nao_mapeados:
@@ -203,5 +214,3 @@ def analisar_procedimentos_nilopolis():
         print(f"Erro: {e}")
         return {}, []
 
-if __name__ == "__main__":
-    analisar_procedimentos_nilopolis()
