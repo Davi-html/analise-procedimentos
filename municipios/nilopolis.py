@@ -151,13 +151,13 @@ def analisar_procedimentos_nilopolis():
         totais = {}
         for nome, lista in grupos.items():
             totais[nome] = process_group(lista or [])
-            dados = {
+            procedimentoMunicipio = {
                 coluna_procedimento: totais.keys(),
-                coluna_quantidade: totais.values()
+                coluna_quantidade: totais.values(),
             }
 
-        df = pd.DataFrame(dados)
-        df.to_excel("./relatorio-criado-municipio/{}.xlsx".format(coluna_procedimento), index=False)
+        df = pd.DataFrame(procedimentoMunicipio)
+        df.to_excel("./relatorio-criado-municipio/nilopolis/{}.xlsx".format(coluna_procedimento), index=False)
 
         print("=== RESULTADOS {} ===".format(coluna_procedimento))
         for nome, total in totais.items():
@@ -166,46 +166,41 @@ def analisar_procedimentos_nilopolis():
         print(f"Soma Total: {soma_total}")
         
         print("\n")
+        
+        todos_procedimentos_conhecidos = []
+        for lista in grupos.values():
+            todos_procedimentos_conhecidos.extend(lista or [])
+        
+        todos_procedimentos_conhecidos = list(set([p for p in todos_procedimentos_conhecidos if p and str(p).strip()]))
+        
+        procedimentos_na_coluna = tabela[coluna_procedimento].dropna().unique()
+        procedimentos_na_coluna = [p for p in procedimentos_na_coluna if p and str(p).strip()]
+        
+        # Encontrar procedimentos que estão na coluna mas não nas listas
+        procedimentos_nao_mapeados = {}
+        for procedimento in procedimentos_na_coluna:
+            if procedimento not in todos_procedimentos_conhecidos:
+                mask = tabela[coluna_procedimento].astype(str) == str(procedimento)
+                quantidade = tabela.loc[mask, coluna_quantidade].sum()
+                if not pd.isna(quantidade) and quantidade > 0:
+                    procedimentos_nao_mapeados[procedimento] = quantidade
 
+        procedimentos_nao_mapeados = dict(sorted(procedimentos_nao_mapeados.items(), key=lambda x: x[1], reverse=True))
 
-        # print("\n" + "="*80)
-        # print("PROCEDIMENTOS NA COLUNA QUE NÃO ESTÃO NAS LISTAS:")
-        # print("="*80)
-        
-        # todos_procedimentos_conhecidos = []
-        # for lista in grupos.values():
-        #     todos_procedimentos_conhecidos.extend(lista or [])
-        
-        # todos_procedimentos_conhecidos = list(set([p for p in todos_procedimentos_conhecidos if p and str(p).strip()]))
-        
-        # procedimentos_na_coluna = tabela[coluna_procedimento].dropna().unique()
-        # procedimentos_na_coluna = [p for p in procedimentos_na_coluna if p and str(p).strip()]
-        
-        # # Encontrar procedimentos que estão na coluna mas não nas listas
-        # procedimentos_nao_mapeados = []
-        # for procedimento in procedimentos_na_coluna:
-        #     if procedimento not in todos_procedimentos_conhecidos:
-        #         # Calcular a quantidade para este procedimento não mapeado
-        #         mask = tabela[coluna_procedimento].astype(str) == str(procedimento)
-        #         quantidade = tabela.loc[mask, coluna_quantidade].sum()
-        #         if not pd.isna(quantidade) and quantidade > 0:
-        #             procedimentos_nao_mapeados.append((procedimento, quantidade))
-        
-        # procedimentos_nao_mapeados.sort(key=lambda x: x[1], reverse=True)
-        
-        # if procedimentos_nao_mapeados:
-        #     print(f"\nEncontrados {len(procedimentos_nao_mapeados)} procedimentos não mapeados:")
-        #     total_nao_mapeado = 0
-        #     for procedimento, quantidade in procedimentos_nao_mapeados:
-        #         print(f"  '{procedimento}': {quantidade}")
-        #         total_nao_mapeado += quantidade
-            
-        #     print(f"\nTotal de procedimentos não mapeados: {total_nao_mapeado}")
-        #     print(f"Total geral (mapeados + não mapeados): {soma_total + total_nao_mapeado}")
-        # else:
-        #     print("\nTodos os procedimentos na coluna estão mapeados nas listas!")
-        
-        # return resultados, procedimentos_nao_mapeados
+        if procedimentos_nao_mapeados:
+            print(f"\nEncontrados {len(procedimentos_nao_mapeados)} procedimentos não mapeados:")
+            total_nao_mapeado = 0
+            for procedimento, quantidade in procedimentos_nao_mapeados.items():
+                print(f"  '{procedimento}': {quantidade}")
+                total_nao_mapeado += quantidade
+
+        procedimentoNaoListado = {
+            "Procedimento Nao listados": procedimentos_nao_mapeados.keys(),
+            "Quantidade Nao listados": procedimentos_nao_mapeados.values(),
+        }
+
+        df = pd.DataFrame(procedimentoNaoListado)
+        df.to_excel("./relatorio-criado-municipio/nilopolis/{}.xlsx".format("Nao-listados"), index=False)
         
     except FileNotFoundError:
         print(f"Arquivo {arquivo} não encontrado!")
